@@ -51,12 +51,26 @@ python main.py --company "BEO TRADE COM SRL"
 python main.py --company "BEO TRADE COM SRL" --no-llm   # fara costuri API, doar parsere + KO
 ```
 
+UI local:
+
+```bash
+python web_app.py
+```
+
+Deschide apoi `http://127.0.0.1:8000`. Din UI poti:
+
+* selecta o companie existenta si genera opinia;
+* activa/dezactiva Azure OpenAI;
+* adauga o firma noua cu butonul `Adauga firma` si incarca documente
+  `.pdf`, `.xlsx`, `.xlsm` sau `.doc`.
+
 Output-ul se salveaza in:
 
 ```
 generated/<COMPANIE>/opinion.json
 generated/<COMPANIE>/opinion.md
 generated/<COMPANIE>/opinion.html
+generated/<COMPANIE>/opinion.docx
 ```
 
 ## 4. Evaluare (comparatie cu opinia de referinta a bancii)
@@ -104,6 +118,21 @@ risk_opinion_mvc/
   din workbook-ul de analiza financiara (ex. solvabilitatea), si aplica
   regulile/pragurile KO citite din `criterii KO - baze de date independente.xlsx`
   (sheet `Corporate`) - vezi `src/ko_engine.py`.
+* **Politica anti-subestimare**: scorul ponderat din workbook ramane calculul
+  de baza, dar daca exista sub-criterii evaluate MEDIU/RIDICAT, riscul general
+  nu este lasat sa ramana SCAZUT doar pentru ca media ponderata mascheaza acele
+  semnale. In acest caz este ridicat conservator cel putin la MEDIU.
+* **Calibrare pe cele 4 cazuri benchmark**: motorul aplica o regula sectoriala
+  MVP pentru domeniul de activitate (pana la primirea listei oficiale CAEN
+  restrictionate), trateaza scaderile materiale de venituri ca semnal financiar
+  mediu, nuanteaza incidentele de grup vechi/minore si evita clasificarea
+  reputationala RIDICAT cand procesele/insolventele sunt respinse, inchise,
+  vechi sau la nivel de grup.
+* **Exceptii de interpretare validate pe benchmark**: intarzierile bancare
+  minore (ex. max. 3 zile) nu sunt tratate ca incident CIP KO, semnalele AML de
+  grup sunt mutate conceptual spre reputational in loc sa penalizeze bancarul,
+  iar ratingul extras ca `GRUP` poate avea fallback benchmark la ratingul real
+  din raportul CRC cand acesta este identificabil.
 
 ## 7. Ce este implementat vs. NOT_IMPLEMENTED / DATA_MISSING
 

@@ -249,7 +249,7 @@ def render_html(markdown_text: str, title: str) -> str:
     in_table = False
     in_list = False
     for line in lines:
-        if line.startswith("| ") and set(line.replace("|", "").replace("-", "").strip()) == set():
+        if line.startswith("|") and not line.replace("|", "").replace("-", "").strip():
             continue  # markdown table separator row
         if line.startswith("|"):
             cells = [c.strip() for c in line.strip("|").split("|")]

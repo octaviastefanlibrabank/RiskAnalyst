@@ -91,6 +91,9 @@ def parse_reference_output(lines: list[str]) -> dict:
 
 
 def main() -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
     parser = argparse.ArgumentParser(description="Compare a generated opinion with the bank's reference OUTPUT (non-semantic).")
     parser.add_argument("--company", required=True)
     args = parser.parse_args()
